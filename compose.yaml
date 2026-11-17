@@ -1,0 +1,46 @@
+services:
+  postgres:
+      image: postgres:16-alpine
+      container_name: quizcloud-db
+      restart: unless-stopped
+      environment:
+        POSTGRES_USER: quizuser
+        POSTGRES_PASSWORD: quizpass
+        POSTGRES_DB: quizcloud
+      ports:
+        - "5432:5432"
+      volumes:
+        - pgdata:/var/lib/postgresql/data
+        - ./database/migrations/01_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+        - ./database/seeds/02_seed.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    container_name: quizcloud-api
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgresql://quizuser:quizpass@postgres:5432/quizcloud
+      CORS_ORIGIN: http://localhost:3000
+    depends_on:
+      - postgres
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    container_name: quizcloud-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NUXT_PUBLIC_API_BASE: http://localhost:4000
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

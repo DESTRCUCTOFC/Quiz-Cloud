@@ -1,0 +1,12 @@
+{
+  "name": "quiz-cloud-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Proyecto 10 QuizCloud - Cómputo en la Nube",
+  "scripts": {
+    "dev:api": "npm --prefix apps/api run dev",
+    "dev:web": "npm --prefix apps/web run dev",
+    "build:api": "npm --prefix apps/api run build",
+    "build:web": "npm --prefix apps/web run build"
+  }
+}
