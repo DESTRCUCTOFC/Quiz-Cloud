@@ -10,12 +10,14 @@ const PORT = process.env.PORT || 4000;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL?.includes('render.com')
+    ? { rejectUnauthorized: false }
+    : false,
 });
 
 app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
 app.use(express.json());
 
-// Endpoint obligatorio Semana 1: Salud del servicio y conexión a BD
 app.get('/api/health', async (_req: Request, res: Response) => {
   try {
     const dbCheck = await pool.query('SELECT NOW()');
@@ -29,7 +31,6 @@ app.get('/api/health', async (_req: Request, res: Response) => {
   }
 });
 
-// Obtener lista de cuestionarios
 app.get('/api/quizzes', async (_req: Request, res: Response) => {
   try {
     const result = await pool.query(`
@@ -46,7 +47,6 @@ app.get('/api/quizzes', async (_req: Request, res: Response) => {
   }
 });
 
-// Crear nuevo cuestionario con preguntas y opciones (Transacción SQL)
 app.post('/api/quizzes', async (req: Request, res: Response) => {
   const { title, description, questions } = req.body;
 
